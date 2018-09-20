@@ -42,11 +42,10 @@
     $momentum = {
         worker: createWorker(),
         idToCallback: {},
-        currentId: 0
     };
 
     function generateId() {
-        return $momentum.currentId++;
+        return Date.now();
     }
 
     function patchedSetInterval(callback, delay) {
@@ -96,15 +95,15 @@
     }
 
     $momentum.worker.onmessage = function (e) {
-        if (e.data.type === 'fire') {
+        if (e.data.type === 'fire' && typeof($momentum.idToCallback[e.data.id]) === 'function' ) {
             $momentum.idToCallback[e.data.id]();
         }
     };
 
     window.$momentum = $momentum;
 
-    window.setInterval = patchedSetInterval;
-    window.clearInterval = patchedClearInterval;
-    window.setTimeout = patchedSetTimeout;
-    window.clearTimeout = patchedClearTimeout;
+    window.setIntervalWorker = patchedSetInterval;
+    window.clearIntervalWorker = patchedClearInterval;
+    window.setTimeoutWorker = patchedSetTimeout;
+    window.clearTimeoutWorker = patchedClearTimeout;
 })();
